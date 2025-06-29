@@ -1,0 +1,86 @@
+import React, { useState } from 'react';
+import { CartProvider } from './context/CartContext';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import About from './pages/About';
+import ProductGrid from './components/ProductGrid';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import { products } from './data/products';
+import { Product } from './types';
+
+type Page = 'home' | 'shop' | 'about' | 'contact' | 'product' | 'cart';
+
+function App() {
+  const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page as Page);
+    setSelectedProduct(null);
+  };
+
+  const handleViewProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setCurrentPage('product');
+  };
+
+  const handleShopNow = () => {
+    setCurrentPage('shop');
+  };
+
+  const handleBackFromProduct = () => {
+    setCurrentPage('shop');
+    setSelectedProduct(null);
+  };
+
+  const handleBackFromCart = () => {
+    setCurrentPage('shop');
+  };
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <Home onShopNow={handleShopNow} onViewProduct={handleViewProduct} />;
+      case 'shop':
+        return <ProductGrid products={products} onViewProduct={handleViewProduct} />;
+      case 'about':
+        return <About />;
+      case 'contact':
+        return (
+          <div className="min-h-screen bg-gray-50 py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              <h1 className="text-4xl font-bold text-gray-900 mb-6">Contact Us</h1>
+              <p className="text-xl text-gray-600 mb-8">Get in touch with our team</p>
+              <div className="bg-white rounded-2xl shadow-sm p-8 max-w-2xl mx-auto">
+                <p className="text-gray-600">Contact page coming soon...</p>
+              </div>
+            </div>
+          </div>
+        );
+      case 'product':
+        return selectedProduct ? (
+          <ProductDetail product={selectedProduct} onBack={handleBackFromProduct} />
+        ) : null;
+      case 'cart':
+        return <Cart onBack={handleBackFromCart} />;
+      default:
+        return <Home onShopNow={handleShopNow} onViewProduct={handleViewProduct} />;
+    }
+  };
+
+  return (
+    <CartProvider>
+      <div className="min-h-screen bg-white">
+        <Header currentPage={currentPage} onNavigate={handleNavigate} />
+        <main>
+          {renderPage()}
+        </main>
+        <Footer />
+      </div>
+    </CartProvider>
+  );
+}
+
+export default App;
